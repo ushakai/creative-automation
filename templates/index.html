@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Creative Automation Pipeline</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 700px;
+        margin: 40px auto;
+        padding: 20px;
+        line-height: 1.6;
+      }
+      h1 {
+        color: #333;
+        margin-bottom: 10px;
+      }
+      .subtitle {
+        color: #666;
+        margin-bottom: 30px;
+      }
+      .input-method {
+        margin-bottom: 30px;
+      }
+      .method-tabs {
+        display: flex;
+        margin-bottom: 20px;
+      }
+      .tab-button {
+        padding: 10px 20px;
+        border: 1px solid #ddd;
+        background: #f8f9fa;
+        cursor: pointer;
+      }
+      .tab-button.active {
+        background: #007bff;
+        color: white;
+        border-color: #007bff;
+      }
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #333;
+      }
+      input,
+      textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      textarea {
+        min-height: 100px;
+        font-family: monospace;
+      }
+      .file-upload {
+        border: 2px dashed #ddd;
+        padding: 20px;
+        text-align: center;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .file-upload:hover {
+        border-color: #007bff;
+        background: #f8f9fa;
+      }
+      button {
+        background-color: #007bff;
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      .result {
+        margin-top: 30px;
+        padding: 20px;
+        border-radius: 4px;
+        display: none;
+      }
+      .error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .processing {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+      }
+      .sample-json {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 4px;
+        margin-top: 10px;
+        font-size: 12px;
+      }
+      .note {
+        font-size: 13px;
+        color: #666;
+        margin-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Creative Automation Pipeline</h1>
+    <p class="subtitle">
+      Generate social media campaign assets across multiple formats
+    </p>
+
+    <div class="input-method">
+      <div class="method-tabs">
+        <div class="tab-button active" onclick="switchTab('form')">
+          Form Input
+        </div>
+        <div class="tab-button" onclick="switchTab('json')">JSON Upload</div>
+        <div class="tab-button" onclick="switchTab('yaml')">YAML Upload</div>
+      </div>
+
+      <!-- Form Input Tab -->
+      <div id="form-tab" class="tab-content active">
+        <form id="campaignForm">
+          <div class="form-group">
+            <label for="product_name">Product Name:</label>
+            <input type="text" id="product_name" required />
+          </div>
+
+          <div class="form-group">
+            <label for="target_region">Target Region:</label>
+            <input type="text" id="target_region" required />
+          </div>
+
+          <div class="form-group">
+            <label for="target_audience">Target Audience:</label>
+            <input type="text" id="target_audience" required />
+          </div>
+
+          <div class="form-group">
+            <label for="campaign_message">Campaign Message:</label>
+            <textarea id="campaign_message" required></textarea>
+          </div>
+
+          <button type="submit">Generate Assets</button>
+        </form>
+      </div>
+
+      <!-- JSON Upload Tab -->
+      <div id="json-tab" class="tab-content">
+        <div class="form-group">
+          <label>Upload JSON File:</label>
+          <div
+            class="file-upload"
+            onclick="document.getElementById('json-file').click()"
+          >
+            <input
+              type="file"
+              id="json-file"
+              accept=".json"
+              style="display: none"
+              onchange="handleFileUpload(this, 'json')"
+            />
+            <p>Click to upload JSON file or drag and drop</p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="json-input">Or paste JSON directly:</label>
+          <textarea
+            id="json-input"
+            placeholder="Paste your JSON here..."
+          ></textarea>
+          <div class="sample-json">
+            <strong>Sample format:</strong><br />
+            {<br />
+            &nbsp;&nbsp;"product_name": "wireless_headphones",<br />
+            &nbsp;&nbsp;"target_region": "Europe",<br />
+            &nbsp;&nbsp;"target_audience": "Remote workers",<br />
+            &nbsp;&nbsp;"campaign_message": "Focus on what matters"<br />
+            }
+          </div>
+        </div>
+
+        <button onclick="processJSON()">Generate Assets</button>
+      </div>
+
+      <!-- YAML Upload Tab -->
+      <div id="yaml-tab" class="tab-content">
+        <div class="form-group">
+          <label>Upload YAML File:</label>
+          <div
+            class="file-upload"
+            onclick="document.getElementById('yaml-file').click()"
+          >
+            <input
+              type="file"
+              id="yaml-file"
+              accept=".yaml,.yml"
+              style="display: none"
+              onchange="handleFileUpload(this, 'yaml')"
+            />
+            <p>Click to upload YAML file or drag and drop</p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="yaml-input">Or paste YAML directly:</label>
+          <textarea
+            id="yaml-input"
+            placeholder="Paste your YAML here..."
+          ></textarea>
+          <div class="sample-json">
+            <strong>Sample format:</strong><br />
+            product_name: organic_coffee<br />
+            target_region: North America<br />
+            target_audience: Morning commuters<br />
+            campaign_message: Start your day right
+          </div>
+        </div>
+
+        <button onclick="processYAML()">Generate Assets</button>
+      </div>
+    </div>
+
+    <div id="result" class="result"></div>
+
+    <script>
+      function switchTab(tabName) {
+        // Hide all tabs
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((tab) => tab.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-button")
+          .forEach((btn) => btn.classList.remove("active"));
+
+        // Show selected tab
+        document.getElementById(tabName + "-tab").classList.add("active");
+        event.target.classList.add("active");
+      }
+
+      function handleFileUpload(input, type) {
+        if (input.files && input.files[0]) {
+          const file = input.files[0];
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            if (type === "json") {
+              document.getElementById("json-input").value = e.target.result;
+            } else if (type === "yaml") {
+              document.getElementById("yaml-input").value = e.target.result;
+            }
+          };
+          reader.readAsText(file);
+        }
+      }
+
+      async function processJSON() {
+        const jsonInput = document.getElementById("json-input").value;
+        if (!jsonInput.trim()) {
+          showResult("error", "Please provide JSON input");
+          return;
+        }
+
+        try {
+          const data = JSON.parse(jsonInput);
+          await submitCampaign(data);
+        } catch (error) {
+          showResult("error", "Invalid JSON format: " + error.message);
+        }
+      }
+
+      async function processYAML() {
+        const yamlInput = document.getElementById("yaml-input").value;
+        if (!yamlInput.trim()) {
+          showResult("error", "Please provide YAML input");
+          return;
+        }
+
+        // Simple YAML parser for basic key: value format
+        try {
+          const data = {};
+          const lines = yamlInput.split("\n");
+          for (let line of lines) {
+            line = line.trim();
+            if (line && !line.startsWith("#")) {
+              const [key, ...valueParts] = line.split(":");
+              if (key && valueParts.length > 0) {
+                data[key.trim()] = valueParts.join(":").trim();
+              }
+            }
+          }
+          await submitCampaign(data);
+        } catch (error) {
+          showResult("error", "Error parsing YAML: " + error.message);
+        }
+      }
+
+      document
+        .getElementById("campaignForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const formData = {
+            product_name: document.getElementById("product_name").value,
+            target_region: document.getElementById("target_region").value,
+            target_audience: document.getElementById("target_audience").value,
+            campaign_message: document.getElementById("campaign_message").value,
+          };
+
+          await submitCampaign(formData);
+        });
+
+      async function submitCampaign(data) {
+        showResult("processing", "Processing campaign brief...");
+
+        try {
+          const response = await fetch("/upload", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            showResult(
+              "success",
+              `
+                        <h3>Campaign Generated Successfully</h3>
+                        <p><strong>Product:</strong> ${result.result.product}</p>
+                        <p><strong>Assets Generated:</strong> ${result.result.assets_generated}</p>
+                        <p><a href="/results/${data.product_name}">View Generated Assets</a></p>
+                    `
+            );
+          } else {
+            showResult("error", "Error: " + result.error);
+          }
+        } catch (error) {
+          showResult("error", "Error: " + error.message);
+        }
+      }
+
+      function showResult(type, message) {
+        const resultDiv = document.getElementById("result");
+        resultDiv.className = "result " + type;
+        resultDiv.innerHTML = message;
+        resultDiv.style.display = "block";
+      }
+    </script>
+  </body>
+</html>

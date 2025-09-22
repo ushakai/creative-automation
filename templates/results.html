@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generated Assets - {{ product_name }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 50px auto; padding: 20px; }
+        .asset-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 30px; }
+        .asset-card { border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .asset-image { max-width: 100%; height: auto; border-radius: 4px; margin: 10px 0; }
+        .asset-info { margin-top: 10px; }
+        .asset-info a { background-color: #007bff; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; display: inline-block; margin-top: 10px; }
+        .asset-info a:hover { background-color: #0056b3; }
+        .ratio-label { font-weight: bold; color: #007bff; margin-bottom: 10px; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-link">← Back to Campaign Brief</a>
+    
+    <h1>Generated Assets for {{ product_name.replace('_', ' ').title() }}</h1>
+    
+    <div id="assets-container">
+        <p>Loading generated assets...</p>
+    </div>
+    
+    <script>
+        // Load and display generated assets
+        async function loadAssets() {
+            try {
+                const productName = '{{ product_name }}';
+                const container = document.getElementById('assets-container');
+                
+                // Fetch actual generated assets
+                const response = await fetch(`/api/assets/${productName}`);
+                const data = await response.json();
+                
+                if (data.assets && data.assets.length > 0) {
+                    let html = '<div class="asset-grid">';
+                    
+                    // Sort assets by ratio for consistent display
+                    const ratioOrder = {'1x1': 1, '9x16': 2, '16x9': 3};
+                    data.assets.sort((a, b) => (ratioOrder[a.ratio] || 4) - (ratioOrder[b.ratio] || 4));
+                    
+                    data.assets.forEach(asset => {
+                        const displayName = asset.ratio === '1x1' ? 'Instagram Square' : 
+                                          asset.ratio === '9x16' ? 'Instagram Story' : 
+                                          'Facebook Landscape';
+                        
+                        html += `
+                            <div class="asset-card">
+                                <div class="ratio-label">${asset.ratio} (${displayName})</div>
+                                <img src="${asset.url}" alt="${displayName} asset" class="asset-image">
+                                <div class="asset-info">
+                                    <p>${asset.dimensions} pixels</p>
+                                    <a href="${asset.url}" download="${asset.filename}">Download</a>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<p>No assets found for this product. Try generating the campaign again.</p>';
+                }
+                
+            } catch (error) {
+                document.getElementById('assets-container').innerHTML = `<p>Error loading assets: ${error.message}</p>`;
+            }
+        }
+        
+        // Load assets when page loads
+        loadAssets();
+    </script>
+</body>
+</html>
